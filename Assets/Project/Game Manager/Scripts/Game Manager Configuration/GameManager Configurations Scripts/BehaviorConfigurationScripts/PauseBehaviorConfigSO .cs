@@ -1,15 +1,16 @@
 using Game_Manager.Conditions;
 using UnityEngine;
+using Game_Manager.GameBehaviors;
 
 namespace Game_Manager.Configuration
 {
     [CreateAssetMenu(fileName = "PauseBehaviorConfig", menuName = "Game Manager/Behavior Configs/Pause Behavior Config", order = 3)]
     public class PauseBehaviorConfigSO :BaseGameBehaviorConfigSO
     {
-        [Header("Pause Behaviour Settings")]
+        [Header("Pause Behavior Settings")]
         public KeyCode PauseKey = KeyCode.Escape;
         public KeyCode ControllerPauseKey;
-        public string PauseAudiokey;
+        public string PauseAudioKey;
         public string UnPauseAudioKey;
 
         public override GameBehaviorBase CreateBehavior()

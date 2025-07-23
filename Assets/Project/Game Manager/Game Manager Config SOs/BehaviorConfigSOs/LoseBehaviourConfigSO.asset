@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1bc40f23cd56ea54f90b1ae9b2f1ed97, type: 3}
   m_Name: LoseBehaviourConfigSO
   m_EditorClassIdentifier: 
-  BehaviorType: 0
+  BehaviorType: 4
   IsTimeZeroOnExecution: 1
   IsCursorLockedOnExecution: 0
   IsCursorVisibleOnExecution: 1

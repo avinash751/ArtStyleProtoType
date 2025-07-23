@@ -9,13 +9,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2105a6ebdcc48b84ba92141af1c98b24, type: 3}
-  m_Name: PlayBehaviorConfig
+  m_Script: {fileID: 11500000, guid: 74f98988b934b8e49b0d2d90a8e3873c, type: 3}
+  m_Name: EventBusConfig
   m_EditorClassIdentifier: 
-  BehaviorType: 1
-  IsTimeZeroOnExecution: 0
-  IsCursorLockedOnExecution: 1
-  IsCursorVisibleOnExecution: 0
-  ShowGameUIOnExecution: 1
-  SceneLoadTypeOnExecution: 0
-  SceneToLoad: 0
+  PersistentStateEvents: 02000000030000000600000007000000

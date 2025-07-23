@@ -9,13 +9,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a9101a8b500a2fe49a943ad994b72cc7, type: 3}
-  m_Name: StartBehaviourConfigSO
+  m_Script: {fileID: 11500000, guid: 2105a6ebdcc48b84ba92141af1c98b24, type: 3}
+  m_Name: PlayBehaviorConfig
   m_EditorClassIdentifier: 
-  BehaviorType: 0
-  IsTimeZeroOnExecution: 1
-  IsCursorLockedOnExecution: 0
-  IsCursorVisibleOnExecution: 1
-  ShowGameUIOnExecution: 0
-  SceneLoadTypeOnExecution: 0
-  SceneToLoad: 0
+  BehaviorType: 1
+  IsTimeZeroOnExecution: 0
+  IsCursorLockedOnExecution: 1
+  IsCursorVisibleOnExecution: 0
+  ShowGameUIOnExecution: 1
+  SceneLoadTypeOnExecution: 2
+  SceneToLoad: 1

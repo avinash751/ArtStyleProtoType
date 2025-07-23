@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using UnityEngine;
-using Game_Manager.GameBehaviors;
 using Game_Manager.Conditions;
 
 namespace Game_Manager.Configuration
@@ -8,60 +7,63 @@ namespace Game_Manager.Configuration
     [CreateAssetMenu(fileName = "GameManagerConfig", menuName = "Game Manager/Game Manager Config", order = 0)]
     public class GameManagerConfigSO : ScriptableObject
     {
-        public bool IsPersistant;
-        public BaseGameBehaviorConfigSO prefferedRestartGameBehaviour;
-        public List<BehaviorConfiguration> behaviorConfigurations;
+        public bool IsPersistent;
+        public BaseGameBehaviorConfigSO PreferredRestartGameBehavior;
+
+        [Header("System Configurations")]
+        public EventBusConfigSO EventBusConfig;
+        public List<BehaviorConfiguration> BehaviorConfigurations;
 
         [System.Serializable]
         public class BehaviorConfiguration
         {
-            public string behaviorName;
-            public BaseGameBehaviorConfigSO configSO;
+            public string BehaviorName;
+            public BaseGameBehaviorConfigSO ConfigSO;
         }
 
         private void OnValidate()
         {
-            if (behaviorConfigurations.Count == 0)
+            if (BehaviorConfigurations.Count == 0)
             {
                 Debug.LogWarning("No Behavior Configurations found in GameManagerConfigSO. Please add some.");
             }
             else
             {
 
-                for (int i = 0; i < behaviorConfigurations.Count; i++)
+                for (int i = 0; i < BehaviorConfigurations.Count; i++)
                 {
-                    BehaviorConfiguration behaviorConfiguration = behaviorConfigurations[i];
-                    if (behaviorConfiguration.configSO == null) continue;
-                    behaviorConfiguration.behaviorName = behaviorConfiguration.configSO.BehaviorType + " Behaviour";
+                    BehaviorConfiguration behaviorConfiguration = BehaviorConfigurations[i];
+                    if (behaviorConfiguration.ConfigSO == null) continue;
+                    behaviorConfiguration.BehaviorName = behaviorConfiguration.ConfigSO.BehaviorType + " Behavior";
                 }
             }
         }
 
-        public List<GameBehaviorBase> CreateAllGameBehaviours()
+        public List<GameBehaviorBase> CreateAllGameBehaviors()
         {
-            List<GameBehaviorBase> registeredGameBehaviours = new List<GameBehaviorBase>();
-            foreach (BehaviorConfiguration behaviorConfiguration in behaviorConfigurations)
+            List<GameBehaviorBase> registeredGameBehaviors = new List<GameBehaviorBase>();
+            foreach (BehaviorConfiguration behaviorConfiguration in BehaviorConfigurations)
             {
-                GameBehaviorBase newCreatedBehaviour = behaviorConfiguration.configSO.CreateBehavior();
-                if (newCreatedBehaviour != null)
+                GameBehaviorBase newCreatedBehavior = behaviorConfiguration.ConfigSO.CreateBehavior();
+                if (newCreatedBehavior != null)
                 {
-                    registeredGameBehaviours.Add(newCreatedBehaviour);
+                    registeredGameBehaviors.Add(newCreatedBehavior);
                 }
                 else
                 {
-                    Debug.LogError("The behaviour created from" + behaviorConfiguration.configSO +
-                        " is null please check in code whether it is making its assoiated behaviour or not");
+                    Debug.LogError("The behavior created from" + behaviorConfiguration.ConfigSO +
+                        " is null please check in code whether it is making its associated behavior or not");
                 }
             }
-            return registeredGameBehaviours;
+            return registeredGameBehaviors;
         }
 
         public List<GameCondition> CreateAllGameConditions()
         {
             List<GameCondition> registeredGameConditions = new List<GameCondition>();
-            foreach (BehaviorConfiguration behaviorConfiguration in behaviorConfigurations)
+            foreach (BehaviorConfiguration behaviorConfiguration in BehaviorConfigurations)
             {
-                GameCondition newGameCondition = behaviorConfiguration.configSO.CreateGameCondition();
+                GameCondition newGameCondition = behaviorConfiguration.ConfigSO.CreateGameCondition();
                 if (newGameCondition != null)
                 {
                     registeredGameConditions.Add(newGameCondition);

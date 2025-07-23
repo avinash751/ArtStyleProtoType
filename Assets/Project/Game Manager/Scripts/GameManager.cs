@@ -32,11 +32,15 @@ namespace Game_Manager
                 return;
             }
             Instance = this;
-            if (gameManagerConfigSo.IsPersistant)
+            if (gameManagerConfigSo.IsPersistent)
             {
                 // This allows The GameManager to be marked as DontDestroyOnLoad
                 transform.SetParent(null);
                 DontDestroyOnLoad(gameObject);
+            }
+            if (gameManagerConfigSo.EventBusConfig!=null)
+            {
+                GameManagerEventBus.Initialize(gameManagerConfigSo.EventBusConfig);
             }
             GameManagerEventBus.Raise(GameStateEvent.OnInitialized);
         }
@@ -53,7 +57,7 @@ namespace Game_Manager
             }
             else
             {
-                gameBehaviors = gameManagerConfigSo.CreateAllGameBehaviours();
+                gameBehaviors = gameManagerConfigSo.CreateAllGameBehaviors();
                 gameConditions = gameManagerConfigSo.CreateAllGameConditions();
                 pollableConditions.Clear();
                 foreach (GameCondition condition in gameConditions)
@@ -115,12 +119,11 @@ namespace Game_Manager
 
         public void RestartGame()
         {
-            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
             GameManagerEventBus.Raise(GameStateEvent.OnRestart);
             InitializeGameConditions();
-            if (gameManagerConfigSo.prefferedRestartGameBehaviour != null)
+            if (gameManagerConfigSo.PreferredRestartGameBehavior != null)
             {
-                GameBehaviorBase tempBehaviourInstnace = gameManagerConfigSo.prefferedRestartGameBehaviour.CreateBehavior();
+                GameBehaviorBase tempBehaviourInstnace = gameManagerConfigSo.PreferredRestartGameBehavior.CreateBehavior();
                 TransitionTo(tempBehaviourInstnace);
             }
             else
@@ -200,31 +203,11 @@ namespace Game_Manager
             }
         }
 
-        /// <summary>
-        /// This is used when new scenes are loaded,
-        /// It is done to re-raise the current behaviour event, 
-        /// to establish connection with new scene specefic GameObjects,
-        /// which may have been destroyed in the previous scene on Behavior Entering.
-        /// This is especillay true for State behaviours that need to load a scene
-        /// </summary>
-        private void ReRaiseCurrentBehaviourEvent(Scene scene, LoadSceneMode loadMode)
-        {
-            if (CurrentBehavior != null)
-            {
-                GameBehaviorBase gameBehavior = (GameBehaviorBase)CurrentBehavior;
-                GameManagerEventBus.Raise(gameBehavior.eventType);
-                GameManagerEventBus.Raise(gameBehavior.InGameUIEventType);
-            }
-        }
         #endregion
 
         #region Event Subscriptions
         private void OnEnable()
         {
-            if (gameManagerConfigSo != null && gameManagerConfigSo.IsPersistant)
-            {
-                SceneManager.sceneLoaded += ReRaiseCurrentBehaviourEvent;
-            }
             GameManagerEventBus.Subscribe(GameRequestEvent.RequestStartGame, StartGame);
             GameManagerEventBus.Subscribe(GameRequestEvent.RequestPlayGame, PlayGame);
             GameManagerEventBus.Subscribe(GameRequestEvent.RequestPauseGame, TogglePause);
@@ -237,10 +220,7 @@ namespace Game_Manager
         private void OnDisable()
         {
             gameConditions.ForEach(condition => condition.CleanUp());
-            if (gameManagerConfigSo != null && gameManagerConfigSo.IsPersistant)
-            {
-                SceneManager.sceneLoaded -= ReRaiseCurrentBehaviourEvent;
-            }
+          
             GameManagerEventBus.Unsubscribe(GameRequestEvent.RequestStartGame, StartGame);
             GameManagerEventBus.Unsubscribe(GameRequestEvent.RequestPlayGame, PlayGame);
             GameManagerEventBus.Unsubscribe(GameRequestEvent.RequestPauseGame, TogglePause);
@@ -253,10 +233,7 @@ namespace Game_Manager
         private void OnDestroy()
         {
             gameConditions.ForEach(condition => condition.CleanUp());
-            if (gameManagerConfigSo != null && gameManagerConfigSo.IsPersistant)
-            {
-                SceneManager.sceneLoaded -= ReRaiseCurrentBehaviourEvent;
-            }
+          
             GameManagerEventBus.Unsubscribe(GameRequestEvent.RequestStartGame, StartGame);
             GameManagerEventBus.Unsubscribe(GameRequestEvent.RequestPlayGame, PlayGame);
             GameManagerEventBus.Unsubscribe(GameRequestEvent.RequestPauseGame, TogglePause);
@@ -265,7 +242,6 @@ namespace Game_Manager
             GameManagerEventBus.Unsubscribe(GameRequestEvent.RequestLoseGame, LoseGame);
             GameManagerEventBus.Unsubscribe(GameRequestEvent.RequestRestartGame, RestartGame);
             GameManagerEventBus.Unsubscribe(GameRequestEvent.RequestQuitGame, QuitGame);
-            Instance = null;
         }
         #endregion
     }

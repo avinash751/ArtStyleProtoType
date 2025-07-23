@@ -1,8 +1,9 @@
 using UnityEngine;
 using Game_Manager.Configuration;
 using Game_Manager.Events;
+using Game_Manager.Conditions;
 
-namespace Game_Manager.Conditions
+namespace Game_Manager.GameBehaviors
 {
     [System.Serializable]
     public class PauseBehavior : GameBehaviorBase
