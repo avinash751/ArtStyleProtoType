@@ -18,7 +18,7 @@ namespace Game_Manager.Conditions
 
         public override void Exit()
         {
-            GameManagerEventBus.Raise(GameStateEvent.OnUnPaused, tokenRaiser);
+            GameManagerEventBus.Raise(GameStateEvent.OnUnPaused);
         }
     }
 }

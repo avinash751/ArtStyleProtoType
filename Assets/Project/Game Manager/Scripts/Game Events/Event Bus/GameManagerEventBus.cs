@@ -11,48 +11,41 @@ namespace Game_Manager.Events
     {
         private static Dictionary<GameStateEvent, Action> assignedGameStateActions = new Dictionary<GameStateEvent, Action>();
         private static Dictionary<GameRequestEvent, Action> assignedGameRequestActions = new Dictionary<GameRequestEvent, Action>();
-        public static void Raise(GameStateEvent eventType, IGameManagerEventRaiserToken _token)
+        public static void Raise(GameStateEvent eventType)
         {
-            if (_token == null)
+            if (!assignedGameStateActions.ContainsKey(eventType))
             {
-                Debug.LogError($"{_token} Token is null or not there,therefore event cannot be raised or invoked ");
+               /* Debug.LogError($"GameManagerEventBus:Has No listeners assigned for event '{eventType}'. " +
+                    $"Please ensure that you have subscribed to this event before raising it."); */
                 return;
             }
-            if (assignedGameStateActions.ContainsKey(eventType))
+
+            Delegate[] listeners = assignedGameStateActions[eventType].GetInvocationList();
+
+            foreach (Delegate listener in listeners)
             {
-                Delegate[] listeners = assignedGameStateActions[eventType].GetInvocationList();
-
-                foreach (Delegate listener in listeners)
+                try
                 {
-                    try
-                    {
-                        ((Action)listener)?.Invoke();
-                    }
-                    catch (Exception error)
-                    {
-                        Debug.LogError($"GameManagerEventBus: Exception caught while invoking listener" +
-                            $" {listener.Method.DeclaringType?.Name}.{listener.Method.Name} for event '{eventType}'." +
-                            $" See details below. Continuing invocation loop.");
+                    ((Action)listener)?.Invoke();
+                }
+                catch (Exception error)
+                {
+                    Debug.LogError($"GameManagerEventBus: Exception caught while invoking listener" +
+                        $" {listener.Method.DeclaringType?.Name}.{listener.Method.Name} for event '{eventType}'." +
+                        $" See details below. Continuing invocation loop.");
 
-                        UnityEngine.Object context = null;
-                        if (listener.Target is UnityEngine.Object targetObject)
-                        {
-                            context = targetObject;
-                        }
-                        Debug.LogException(error, context);
-
+                    UnityEngine.Object context = null;
+                    if (listener.Target is UnityEngine.Object targetObject)
+                    {
+                        context = targetObject;
                     }
+                    Debug.LogException(error, context);
                 }
             }
         }
-
-        public static void Raise(GameRequestEvent eventType, IGameManagerEventRaiserToken _token)
+        public static void Raise(GameRequestEvent eventType)
         {
-            if (_token == null)
-            {
-                Debug.LogError($"{_token} Token is null or not there,therefore event cannot be raised or invoked ");
-                return;
-            }
+      
             if (assignedGameRequestActions.ContainsKey(eventType))
             {
                 assignedGameRequestActions[eventType]?.Invoke();

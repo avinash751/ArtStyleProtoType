@@ -17,10 +17,11 @@ namespace Game_Manager
 
         [Header("References")]
         [SerializeField] GameManagerConfigSO gameManagerConfigSo;
-        private GameManagerEventToken tokenRaiser;
-
-        [SerializeReference] private List<GameBehaviorBase> gameBehaviors = new();
+        [HideInInspector]
+        [SerializeReference] List<GameBehaviorBase> gameBehaviors = new();
+        [HideInInspector]
         [SerializeReference] List<GameCondition> gameConditions = new();
+        List<IPollableCondition> pollableConditions = new();
 
         #region Game Manager Intialization
         private void Awake()
@@ -37,8 +38,7 @@ namespace Game_Manager
                 transform.SetParent(null);
                 DontDestroyOnLoad(gameObject);
             }
-            tokenRaiser = new GameManagerEventToken();
-            GameManagerEventBus.Raise(GameStateEvent.OnInitialized, tokenRaiser);
+            GameManagerEventBus.Raise(GameStateEvent.OnInitialized);
         }
         #endregion
 
@@ -55,6 +55,14 @@ namespace Game_Manager
             {
                 gameBehaviors = gameManagerConfigSo.CreateAllGameBehaviours();
                 gameConditions = gameManagerConfigSo.CreateAllGameConditions();
+                pollableConditions.Clear();
+                foreach (GameCondition condition in gameConditions)
+                {
+                    if (condition is IPollableCondition pollableCondition)
+                    {
+                        pollableConditions.Add(pollableCondition);
+                    }
+                }
             }
         }
 
@@ -72,9 +80,9 @@ namespace Game_Manager
             {
                 CurrentBehavior.OnUpdate();
             }
-            foreach(GameCondition condition in gameConditions)
+            foreach (IPollableCondition condition in pollableConditions)
             {
-                condition.OnUpdate(Time.deltaTime);
+                condition.OnUpdate();
             }
         }
 
@@ -108,9 +116,9 @@ namespace Game_Manager
         public void RestartGame()
         {
             SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
-            GameManagerEventBus.Raise(GameStateEvent.OnRestart, tokenRaiser);
+            GameManagerEventBus.Raise(GameStateEvent.OnRestart);
             InitializeGameConditions();
-            if(gameManagerConfigSo.prefferedRestartGameBehaviour!=null)
+            if (gameManagerConfigSo.prefferedRestartGameBehaviour != null)
             {
                 GameBehaviorBase tempBehaviourInstnace = gameManagerConfigSo.prefferedRestartGameBehaviour.CreateBehavior();
                 TransitionTo(tempBehaviourInstnace);
@@ -123,7 +131,7 @@ namespace Game_Manager
 
         public void QuitGame()
         {
-            GameManagerEventBus.Raise(GameStateEvent.OnQuit, tokenRaiser);
+            GameManagerEventBus.Raise(GameStateEvent.OnQuit);
             Application.Quit();
         }
 
@@ -156,19 +164,19 @@ namespace Game_Manager
             if (CurrentBehavior != null) { CurrentBehavior.Exit(); }
             CurrentBehavior = newBehavior;
             CurrentBehavior.Enter();
-            GameManagerEventBus.Raise(GameStateEvent.OnStateChanged, tokenRaiser);
+            GameManagerEventBus.Raise(GameStateEvent.OnStateChanged);
         }
-        
+
         private void TransitionTo(GameBehaviorBase behaviourType)
         {
-            for(int i = 0; i < gameBehaviors.Count; i++)
+            for (int i = 0; i < gameBehaviors.Count; i++)
             {
                 if (gameBehaviors[i].GetType() == behaviourType.GetType())
                 {
                     if (CurrentBehavior != null) { CurrentBehavior.Exit(); }
                     CurrentBehavior = gameBehaviors[i];
                     CurrentBehavior.Enter();
-                    GameManagerEventBus.Raise(GameStateEvent.OnStateChanged, tokenRaiser);
+                    GameManagerEventBus.Raise(GameStateEvent.OnStateChanged);
                     return;
                 }
             }
@@ -204,8 +212,8 @@ namespace Game_Manager
             if (CurrentBehavior != null)
             {
                 GameBehaviorBase gameBehavior = (GameBehaviorBase)CurrentBehavior;
-                GameManagerEventBus.Raise(gameBehavior.eventType, tokenRaiser);
-                GameManagerEventBus.Raise(gameBehavior.InGameUIEventType, tokenRaiser);
+                GameManagerEventBus.Raise(gameBehavior.eventType);
+                GameManagerEventBus.Raise(gameBehavior.InGameUIEventType);
             }
         }
         #endregion

@@ -1,2 +1,12 @@
 fileFormatVersion: 2
 guid: 418a4b95e2972ea48814c4f2b4f20d3a
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - prefferedRestartGameBehaviour: {fileID: 11400000, guid: 72dd10351ad9b2a41a0482ddc9840881, type: 2}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

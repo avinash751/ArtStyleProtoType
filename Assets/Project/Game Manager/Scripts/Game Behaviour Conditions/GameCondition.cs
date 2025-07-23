@@ -17,7 +17,6 @@ namespace Game_Manager.Conditions
     {
         [SerializeField][HideInInspector] protected string conditionName;
         [SerializeField] protected BaseGameBehaviorConfigSO configSO;
-        [HideInInspector][SerializeField] protected GameManagerEventToken eventToken = new();
         [HideInInspector][SerializeField] protected GameRequestEvent requestEventType;
 
         public GameCondition(BaseGameBehaviorConfigSO _configSO)
@@ -27,21 +26,14 @@ namespace Game_Manager.Conditions
         public abstract void Initialize();
 
         /// <summary>
-        /// This is intended to be called every frame when the condition is active
-        /// useful if specific game logic conditions needs to be checked every frame
-        /// deltaTime is passed in case you want to use it for any calculations 
-        /// </summary>
-        public virtual void OnUpdate(float deltaTime = 0) { }
-
-        /// <summary>
         /// This is intended to be called When a new scene is loaded
         /// Useful if you want to unsubscribe from events or reset variables in the condition
         ///</summary>
         public virtual void CleanUp() { }
         protected void TriggerGameConditionMet()
         {
-            GameManagerEventBus.Raise(requestEventType, eventToken);
             HandleOnGameConditionMet();
+            GameManagerEventBus.Raise(requestEventType);
         }
 
         /// <summary>

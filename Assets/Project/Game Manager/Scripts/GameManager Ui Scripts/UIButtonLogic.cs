@@ -24,11 +24,9 @@ public class MenuRelation
 public class UIButtonLogic : MonoBehaviour
 {
     [SerializeField] List<MenuRelation> MenuRelations;
-    private GameManagerEventToken tokenRaiser;
 
     private void Start()
     {
-        tokenRaiser = new GameManagerEventToken();
         foreach (var menuRelation in MenuRelations)
         {
             foreach (var buttonData in menuRelation.UIButtonDataList)
@@ -56,22 +54,22 @@ public class UIButtonLogic : MonoBehaviour
         switch (buttonType)
         {
             case ButtonType.StartGame:
-                commandList.Add(() => GameManagerEventBus.Raise(GameRequestEvent.RequestPlayGame,tokenRaiser));
+                commandList.Add(() => GameManagerEventBus.Raise(GameRequestEvent.RequestPlayGame));
                 break;
             case ButtonType.PauseGame:
-                commandList.Add(() => GameManagerEventBus.Raise(GameRequestEvent.RequestPauseGame, tokenRaiser));
+                commandList.Add(() => GameManagerEventBus.Raise(GameRequestEvent.RequestPauseGame));
                 break;
             case ButtonType.ResumeGame:
-                commandList.Add(() => GameManagerEventBus.Raise(GameRequestEvent.RequestUnPauseGame, tokenRaiser));
+                commandList.Add(() => GameManagerEventBus.Raise(GameRequestEvent.RequestUnPauseGame));
                 break;
             case ButtonType.RestartGame:
-                commandList.Add(() => GameManagerEventBus.Raise(GameRequestEvent.RequestRestartGame, tokenRaiser));
+                commandList.Add(() => GameManagerEventBus.Raise(GameRequestEvent.RequestRestartGame));
                 break;
             case ButtonType.GoToMainMenu:
-                commandList.Add(() => GameManagerEventBus.Raise(GameRequestEvent.RequestStartGame, tokenRaiser));
+                commandList.Add(() => GameManagerEventBus.Raise(GameRequestEvent.RequestStartGame));
                 break;
             case ButtonType.QuitGame:
-                commandList.Add(() => GameManagerEventBus.Raise(GameRequestEvent.RequestQuitGame, tokenRaiser));
+                commandList.Add(() => GameManagerEventBus.Raise(GameRequestEvent.RequestQuitGame));
                 break;
         }
     }

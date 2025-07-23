@@ -13,7 +13,6 @@ namespace Game_Manager
         [SerializeField][HideInInspector] string behaviorName;
         [SerializeField] protected BaseGameBehaviorConfigSO BehaviorConfigSO;
         [HideInInspector][SerializeField] protected bool isInitialEnter = true;
-        [HideInInspector][SerializeField] protected GameManagerEventToken tokenRaiser;
         [field: SerializeField][HideInInspector] public GameStateEvent eventType { get; protected set; }
         [field: SerializeField][HideInInspector] public GameStateEvent InGameUIEventType { get; protected set; }
         public GameBehaviorBase(BaseGameBehaviorConfigSO _behaviorConfigSO)
@@ -22,7 +21,6 @@ namespace Game_Manager
             behaviorName = _behaviorConfigSO.BehaviorType.ToString() + " Behavior";
             isInitialEnter = true;
             SetInGameUiEventType();
-            tokenRaiser = new GameManagerEventToken();
         }
 
         public void Enter()
@@ -69,8 +67,8 @@ namespace Game_Manager
             SetCursorVisible(BehaviorConfigSO.IsCursorVisibleOnExecution);
             HandleSceneLoading(BehaviorConfigSO.SceneLoadTypeOnExecution);
             isInitialEnter = false;
-            GameManagerEventBus.Raise(eventType, tokenRaiser);
-            GameManagerEventBus.Raise(InGameUIEventType, tokenRaiser);
+            GameManagerEventBus.Raise(eventType);
+            GameManagerEventBus.Raise(InGameUIEventType);
         }
 
         private void SetInGameUiEventType()

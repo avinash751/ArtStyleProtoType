@@ -12,7 +12,7 @@ namespace Game_Manager.Conditions
     /// Instead try getting the references 
     /// </summary>
     [System.Serializable]
-    public class PauseCondition : GameCondition
+    public class PauseCondition : GameCondition,IPollableCondition
     {
         [HideInInspector][SerializeField] PauseBehaviorConfigSO pauseConfig;
         [SerializeField][HideInInspector] bool isPaused = false;
@@ -30,7 +30,7 @@ namespace Game_Manager.Conditions
             GameManagerEventBus.Subscribe(GameStateEvent.OnUnPaused, DisablePause);
         }
 
-        public override void OnUpdate(float deltaTime = 0)
+        public void OnUpdate()
         {
             bool onInputPressed = Input.GetKeyDown(pauseConfig.PauseKey) || Input.GetKeyDown(pauseConfig.ControllerPauseKey);
 

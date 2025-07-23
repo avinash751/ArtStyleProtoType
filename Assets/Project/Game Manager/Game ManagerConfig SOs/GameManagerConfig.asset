@@ -13,8 +13,7 @@ MonoBehaviour:
   m_Name: GameManagerConfig
   m_EditorClassIdentifier: 
   IsPersistant: 1
-  prefferedRestartGameBehaviour: {fileID: 11400000, guid: 72dd10351ad9b2a41a0482ddc9840881,
-    type: 2}
+  prefferedRestartGameBehaviour: {fileID: 11400000, guid: 72dd10351ad9b2a41a0482ddc9840881, type: 2}
   behaviorConfigurations:
   - behaviorName: Start Behaviour
     configSO: {fileID: 11400000, guid: 60ecb6fc2715ab448a854112fcce31e8, type: 2}
