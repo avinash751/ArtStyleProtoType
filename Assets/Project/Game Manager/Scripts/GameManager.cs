@@ -1,3 +1,4 @@
+using System;
 using Game_Manager.Configuration;
 using Game_Manager.GameBehaviors;
 using Game_Manager.Conditions;
@@ -5,6 +6,7 @@ using Game_Manager.Events;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+
 
 namespace Game_Manager
 {
@@ -20,8 +22,13 @@ namespace Game_Manager
         [SerializeReference] List<GameBehaviorBase> gameBehaviors = new();
         [HideInInspector]
         [SerializeReference] List<GameCondition> gameConditions = new();
+
+        private Dictionary<Type, GameBehaviorBase> behaviorsByType = new();
+        private Dictionary<BaseGameBehaviorConfigSO, GameBehaviorBase> behaviorsByConfig = new();
+
         List<IPollableCondition> pollableConditions = new();
         GameBehaviorBase pendingBehaviorToExecuteOnRestart;
+
 
         #region Game Manager Intialization
         private void Awake()
@@ -32,6 +39,7 @@ namespace Game_Manager
                 return;
             }
             Instance = this;
+            PopulateBehaviorDictionaries();
 
             if (gameManagerConfigSo.Mode == OperatingMode.Persistent ||
                 gameManagerConfigSo.Mode == OperatingMode.PersistentSceneAware)
@@ -59,10 +67,13 @@ namespace Game_Manager
                 Debug.LogWarning("No Game Manager Config found on GameManager. Please assign one.");
                 gameBehaviors.Clear();
                 gameConditions.Clear();
+                behaviorsByType.Clear();
+                behaviorsByConfig.Clear();
             }
             else
             {
                 gameBehaviors = gameManagerConfigSo.CreateAllGameBehaviors();
+                PopulateBehaviorDictionaries();
                 gameConditions = gameManagerConfigSo.CreateAllGameConditions();
                 pollableConditions.Clear();
                 foreach (GameCondition condition in gameConditions)
@@ -71,6 +82,33 @@ namespace Game_Manager
                     {
                         pollableConditions.Add(pollableCondition);
                     }
+                }
+            }
+        }
+
+        private void PopulateBehaviorDictionaries()
+        {
+            if (behaviorsByType.Count > 0) return;
+            if (gameBehaviors.Count == 0) return;
+
+            behaviorsByType.Clear();
+            behaviorsByConfig.Clear();
+
+            foreach (var behavior in gameBehaviors)
+            {
+                // populate the dictionary for lookups by type (e.g., GetBehavior<PlayBehavior>(),)
+                if (behaviorsByType.ContainsKey(behavior.GetType()))
+                {
+                    Debug.LogWarning($"Duplicate behavior type found: {behavior.GetType()}. Check your GameManagerConfigSO.");
+                    return;
+                }
+                behaviorsByType.Add(behavior.GetType(), behavior);
+
+
+                // Populate the dictionary for lookups by Config SO (e.g., GetBehaviorFromConfig(...))
+                if (behavior.BehaviorConfigSO != null && !behaviorsByConfig.ContainsKey(behavior.BehaviorConfigSO))
+                {
+                    behaviorsByConfig.Add(behavior.BehaviorConfigSO, behavior);
                 }
             }
         }
@@ -145,6 +183,8 @@ namespace Game_Manager
 
         public void RestartGame()
         {
+            ResetAllBehaviors();
+            GameManagerEventBus.Raise(GameStateEvent.OnRestart);
             GameBehaviorBase targetBehavior = GetBehaviorFromConfig(gameManagerConfigSo.PreferredRestartGameBehavior);
             if (targetBehavior == null)
             {
@@ -156,7 +196,6 @@ namespace Game_Manager
                 Debug.LogError("FATAL: Could not find a behavior to restart to. Aborting restart.");
                 return;
             }
-            GameManagerEventBus.Raise(GameStateEvent.OnRestart);
             SceneLoadType sceneLoadType = targetBehavior.BehaviorConfigSO.SceneLoadTypeOnExecution;
             if (sceneLoadType == SceneLoadType.NoSceneLoad)
             {
@@ -166,7 +205,7 @@ namespace Game_Manager
             }
             // Set the pending flag and load the scene. The callback will handle the rest.
             pendingBehaviorToExecuteOnRestart = targetBehavior;
-            SceneManager.LoadScene(targetBehavior.BehaviorConfigSO.SceneToLoad);   
+            SceneManager.LoadScene(targetBehavior.BehaviorConfigSO.SceneToLoad);
         }
 
         void InitializationOnSceneLoaded(Scene scene, LoadSceneMode loadType)
@@ -185,61 +224,44 @@ namespace Game_Manager
 
         private T GetBehavior<T>() where T : GameBehaviorBase
         {
-            foreach (var behavior in gameBehaviors)
+            if (behaviorsByType.TryGetValue(typeof(T), out GameBehaviorBase behavior))
             {
-                if (behavior is T targetBehavior)
-                {
-                    return targetBehavior;
-                }
+                return behavior as T;
             }
+
             Debug.LogWarning($"No GameBehavior of type {typeof(T)} found on GameManager.");
             return null;
         }
 
-        private GameBehaviorBase GetBehaviorFromConfig(BaseGameBehaviorConfigSO behaviorCongig)
+        private GameBehaviorBase GetBehaviorFromConfig(BaseGameBehaviorConfigSO behaviorConfig)
         {
-            foreach (GameBehaviorBase behavior in gameBehaviors)
+            if (behaviorConfig == null) return null;
+
+            if (behaviorsByConfig.TryGetValue(behaviorConfig, out GameBehaviorBase behavior))
             {
-                if (behavior.BehaviorConfigSO == behaviorCongig)
-                {
-                    return behavior;
-                }
+                return behavior;
             }
-            Debug.LogWarning($"No GameBehavior found for the provided config: {behaviorCongig}");
+            Debug.LogWarning($"No GameBehavior found for the provided config: {behaviorConfig.name}");
             return null;
         }
 
         private void TransitionToType<T>(bool skipSceneLoading = false) where T : GameBehaviorBase
         {
-            T newBehavior = GetBehavior<T>();
-            if (newBehavior == null)
+            TransitionTo(GetBehavior<T>(), skipSceneLoading);
+        }
+
+        private void TransitionTo(GameBehaviorBase behavior, bool skipSceneLoading = false)
+        {
+            if (behavior == null)
             {
-                Debug.LogError($"Null Reference,Could Not Transition to {typeof(T)}" +
-                           $" as the the behavior type was not found on GameManager.");
+                Debug.LogError("Transition failed: target behavior is null.");
                 return;
             }
 
             if (CurrentBehavior != null) { CurrentBehavior.Exit(); }
-            CurrentBehavior = newBehavior;
+            CurrentBehavior = behavior;
             CurrentBehavior.Enter(skipSceneLoading);
             GameManagerEventBus.Raise(GameStateEvent.OnStateChanged);
-        }
-
-        private void TransitionTo(GameBehaviorBase behaviorType, bool skipSceneLoading = false)
-        {
-            for (int i = 0; i < gameBehaviors.Count; i++)
-            {
-                if (gameBehaviors[i].GetType() == behaviorType.GetType())
-                {
-                    if (CurrentBehavior != null) { CurrentBehavior.Exit(); }
-                    CurrentBehavior = gameBehaviors[i];
-                    CurrentBehavior.Enter(skipSceneLoading);
-                    GameManagerEventBus.Raise(GameStateEvent.OnStateChanged);
-                    return;
-                }
-            }
-            Debug.LogError($"Null Reference,Could Not Transition to {behaviorType.GetType()}" +
-                           $" as the the behavior type was not found on GameManager behavior list.");
         }
 
         private void ResetAllBehaviors()
