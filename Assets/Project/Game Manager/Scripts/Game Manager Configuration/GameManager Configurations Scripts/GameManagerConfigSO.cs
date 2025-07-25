@@ -7,11 +7,12 @@ namespace Game_Manager.Configuration
     [CreateAssetMenu(fileName = "GameManagerConfig", menuName = "Game Manager/Game Manager Config", order = 0)]
     public class GameManagerConfigSO : ScriptableObject
     {
-        public bool IsPersistent;
-        public BaseGameBehaviorConfigSO PreferredRestartGameBehavior;
-
-        [Header("System Configurations")]
+        [Header("Operation Settings")]
+        public OperatingMode Mode = OperatingMode.NonPersistent;
         public EventBusConfigSO EventBusConfig;
+
+        [Header("Game Manager States Configuration")]
+        public BaseGameBehaviorConfigSO PreferredRestartGameBehavior;
         public List<BehaviorConfiguration> BehaviorConfigurations;
 
         [System.Serializable]

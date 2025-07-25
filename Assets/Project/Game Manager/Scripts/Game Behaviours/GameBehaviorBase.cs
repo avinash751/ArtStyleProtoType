@@ -11,22 +11,25 @@ namespace Game_Manager
     public abstract class GameBehaviorBase : IGameBehavior
     {
         [SerializeField][HideInInspector] string behaviorName;
-        [SerializeField] protected BaseGameBehaviorConfigSO BehaviorConfigSO;
+        [SerializeField] protected BaseGameBehaviorConfigSO behaviorConfigSO;
+
         [HideInInspector][SerializeField] protected bool isInitialEnter = true;
         [field: SerializeField][HideInInspector] public GameStateEvent eventType { get; protected set; }
         [field: SerializeField][HideInInspector] public GameStateEvent InGameUIEventType { get; protected set; }
+        public BaseGameBehaviorConfigSO BehaviorConfigSO => behaviorConfigSO;
+
         public GameBehaviorBase(BaseGameBehaviorConfigSO _behaviorConfigSO)
         {
-            BehaviorConfigSO = _behaviorConfigSO;
+            behaviorConfigSO = _behaviorConfigSO;
             behaviorName = _behaviorConfigSO.BehaviorType.ToString() + " Behavior";
             isInitialEnter = true;
             SetInGameUiEventType();
         }
 
-        public void Enter()
+        public void Enter(bool skipSceneLoading = false)
         {
             OnEnter();
-            ApplyBaseSettings();
+            ApplyBaseSettings(skipSceneLoading);
         }
 
         /// <summary>
@@ -35,7 +38,6 @@ namespace Game_Manager
         /// to run every frame
         /// </summary>
         public virtual void OnUpdate() { }
-
         public virtual void Exit() { }
 
         public void Reset()
@@ -44,28 +46,30 @@ namespace Game_Manager
         }
         /// <summary>
         ///  If The behavior needs to have custom logic when
-        ///  entering the state,then it needs to be overriden in the derived class
+        ///  entering the state,then it needs to be overridden in the derived class
         /// </summary>
         protected virtual void OnEnter() { }
 
         /// <summary>
         /// if the behavior needs to have custom logic when
-        /// resetting the state, then it needs to be overriden in the derived class
+        /// resetting the state, then it needs to be overridden in the derived class
         protected virtual void OnReset() { }
 
-        private void ApplyBaseSettings()
+        private void ApplyBaseSettings(bool skipSceneLoading)
         {
-            if (BehaviorConfigSO == null)
+            if (behaviorConfigSO == null)
             {
-                Debug.LogError("Config So is not assigned to this Game Manager Behaviour.Please assign it in the Inspector.");
+                Debug.LogError("Config So is not assigned to this Game Manager Behavior.Please assign it in the Inspector.");
 
             }
             //Debug.Log("Executing " + GetType().ToString());
-
-            SetTimescale(BehaviorConfigSO.IsTimeZeroOnExecution ? 0f : 1f);
-            SetCursorLockMode(BehaviorConfigSO.IsCursorLockedOnExecution);
-            SetCursorVisible(BehaviorConfigSO.IsCursorVisibleOnExecution);
-            HandleSceneLoading(BehaviorConfigSO.SceneLoadTypeOnExecution);
+            SetTimescale(behaviorConfigSO.IsTimeZeroOnExecution ? 0f : 1f);
+            SetCursorLockMode(behaviorConfigSO.IsCursorLockedOnExecution);
+            SetCursorVisible(behaviorConfigSO.IsCursorVisibleOnExecution);
+            if(!skipSceneLoading)
+            {
+                HandleSceneLoading(behaviorConfigSO.SceneLoadTypeOnExecution);       
+            }
             isInitialEnter = false;
             GameManagerEventBus.Raise(eventType);
             GameManagerEventBus.Raise(InGameUIEventType);
@@ -73,7 +77,7 @@ namespace Game_Manager
 
         private void SetInGameUiEventType()
         {
-            if (BehaviorConfigSO.ShowGameUIOnExecution)
+            if (behaviorConfigSO.ShowGameUIOnExecution)
             {
                 InGameUIEventType = GameStateEvent.OnInGameUIActive;
             }
@@ -113,10 +117,10 @@ namespace Game_Manager
                     break;
                 case SceneLoadType.LoadSceneOnce:
                     if (!isInitialEnter) break;
-                    LoadScene(BehaviorConfigSO.SceneToLoad);
+                    LoadScene(behaviorConfigSO.SceneToLoad);
                     break;
                 case SceneLoadType.LoadSceneAlways:
-                    LoadScene(BehaviorConfigSO.SceneToLoad);
+                    LoadScene(behaviorConfigSO.SceneToLoad);
                     break;
             }
         }

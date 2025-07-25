@@ -20,7 +20,7 @@ namespace Game_Manager
 
     /// <summary>
     /// This is used to define the different game state events that are primarily raised in 
-    /// State Behaviour classes like StartBehaviour, PlayBehaviour, PauseBehaviour etc
+    /// State Behavior classes like StartBehavior, PlayBehavior, PauseBehavior etc
     public enum GameStateEvent
     {
         OnStateChanged,
@@ -61,4 +61,14 @@ namespace Game_Manager
         LoadSceneOnce,   // Load only on the initial Enter() if configured
         LoadSceneAlways  // Always load the scene on Enter() if configured
     }
+
+    public enum OperatingMode
+    {
+        NonPersistent,          // Standard: Starts from scratch every time.
+        NonPersistentSceneAware,// Starts in the state matching the active scene.
+        Persistent,             // DontDestroyOnLoad is enabled, but still starts from scratch every time.
+        PersistentSceneAware    // DontDestroyOnLoad + starts in the state matching the active scene.
+    }
+
+
 }
