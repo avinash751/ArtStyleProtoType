@@ -3,6 +3,7 @@ using Game_Manager.Configuration;
 using Game_Manager.Events;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace Game_Manager.Events
@@ -13,26 +14,25 @@ namespace Game_Manager.Events
         private static Dictionary<GameStateEvent, Action> assignedGameStateActions = new Dictionary<GameStateEvent, Action>();
         private static Dictionary<GameRequestEvent, Action> assignedGameRequestActions = new Dictionary<GameRequestEvent, Action>();
 
-        private static HashSet<GameStateEvent> persistentEvents = new HashSet<GameStateEvent>();
-        private static GameStateEvent? lastStickyGameStateEvent = null;
-        private static bool isInitialized = false;
+        // This is generated at run time by the GameManager
+        private static HashSet<GameStateEvent> persistentStateEvents = new HashSet<GameStateEvent>();
+        private static HashSet<GameStateEvent> persistentNotificationEvents = new HashSet<GameStateEvent>
+        {
+            GameStateEvent.OnInGameUIActive,
+            GameStateEvent.OnInGameUIInactive
+        };
 
+        private static GameStateEvent? lastPersistentGameStateEvent = null;
+        private static GameStateEvent? lastPersistentNotificationEvent = null;
 
         /// <summary>
-        /// Must be called Once by GameManager at the start of the game to initialize the event bus.
+        /// Called once by the GameManager at startup to register all events
+        /// that should be treated as persistent "sticky" states.
         /// </summary>
-        public static void Initialize(EventBusConfigSO config)
+        public static void RegisterStateEvents(HashSet<GameStateEvent> stateEvents)
         {
-            if (isInitialized) return;
-            if (config == null)
-            {
-                Debug.LogError("EventBusConfigSO is missing! Cannot initialize the GameManagerEventBus.");
-                return;
-            }
-            persistentEvents = new HashSet<GameStateEvent>(config.PersistentStateEvents);
-            isInitialized = true;
+            persistentStateEvents = stateEvents ?? new HashSet<GameStateEvent>();
         }
-
         public static void Raise(GameStateEvent eventType)
         {
             if (!assignedGameStateActions.ContainsKey(eventType))
@@ -42,9 +42,14 @@ namespace Game_Manager.Events
                 return;
             }
 
-            if (persistentEvents.Contains(eventType))
+            if (persistentStateEvents.Contains(eventType))
             {
-                lastStickyGameStateEvent = eventType;
+                lastPersistentGameStateEvent = eventType;
+            }
+
+            if( persistentNotificationEvents.Contains(eventType))
+            {
+                lastPersistentNotificationEvent = eventType;
             }
 
             Delegate[] listeners = assignedGameStateActions[eventType].GetInvocationList();
@@ -90,7 +95,11 @@ namespace Game_Manager.Events
             }
 
             // immediately invoke the new subscriber's action to bring it up to speed.
-            if (persistentEvents.Contains(eventType) && eventType == lastStickyGameStateEvent)
+            if (persistentStateEvents.Contains(eventType) && eventType == lastPersistentGameStateEvent)
+            {
+                action?.Invoke();
+            }
+            if( persistentNotificationEvents.Contains(eventType) && eventType == lastPersistentNotificationEvent)
             {
                 action?.Invoke();
             }
@@ -137,9 +146,9 @@ namespace Game_Manager.Events
             assignedGameStateActions = new Dictionary<GameStateEvent, Action>();
             assignedGameRequestActions = new Dictionary<GameRequestEvent, Action>();
 
-            persistentEvents = new HashSet<GameStateEvent>();
-            lastStickyGameStateEvent = null;
-            isInitialized = false;
+            persistentStateEvents = new HashSet<GameStateEvent>();
+            lastPersistentGameStateEvent = null;
+            lastPersistentNotificationEvent = null;
         }
     }
 }

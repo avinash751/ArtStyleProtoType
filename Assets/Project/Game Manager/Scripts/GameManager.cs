@@ -48,10 +48,13 @@ namespace Game_Manager
                 DontDestroyOnLoad(gameObject);
             }
 
-            if (gameManagerConfigSo.EventBusConfig != null)
+            HashSet<GameStateEvent> persistentEvents = new HashSet<GameStateEvent>();
+            foreach (var behavior in gameBehaviors)
             {
-                GameManagerEventBus.Initialize(gameManagerConfigSo.EventBusConfig);
+                persistentEvents.Add(behavior.eventType);
             }
+            GameManagerEventBus.RegisterStateEvents(persistentEvents);
+
             GameManagerEventBus.Raise(GameStateEvent.OnInitialized);
         }
         private void Start()

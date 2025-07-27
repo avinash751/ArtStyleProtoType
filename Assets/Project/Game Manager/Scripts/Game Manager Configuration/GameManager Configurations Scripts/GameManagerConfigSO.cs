@@ -9,7 +9,6 @@ namespace Game_Manager.Configuration
     {
         [Header("Operation Settings")]
         public OperatingMode Mode = OperatingMode.NonPersistent;
-        public EventBusConfigSO EventBusConfig;
 
         [Header("Game Manager States Configuration")]
         public BaseGameBehaviorConfigSO PreferredRestartGameBehavior;
