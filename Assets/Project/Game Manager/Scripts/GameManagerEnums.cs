@@ -36,14 +36,6 @@ namespace Game_Manager
         OnInGameUIActive,
         OnInGameUIInactive,
     }
-    public enum GameBehaviorType
-    {
-        Start,
-        Play,
-        Paused,
-        Win,
-        Lose
-    }
 
     public enum  ButtonType
     {

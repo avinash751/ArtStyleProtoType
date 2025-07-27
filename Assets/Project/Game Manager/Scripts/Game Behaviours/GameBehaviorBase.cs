@@ -21,9 +21,8 @@ namespace Game_Manager
         public GameBehaviorBase(BaseGameBehaviorConfigSO _behaviorConfigSO)
         {
             behaviorConfigSO = _behaviorConfigSO;
-            behaviorName = _behaviorConfigSO.BehaviorType.ToString() + " Behavior";
+            behaviorName = _behaviorConfigSO.BehaviorName;
             isInitialEnter = true;
-            SetInGameUiEventType();
         }
 
         public void Enter(bool skipSceneLoading = false)
@@ -66,7 +65,8 @@ namespace Game_Manager
             SetTimescale(behaviorConfigSO.IsTimeZeroOnExecution ? 0f : 1f);
             SetCursorLockMode(behaviorConfigSO.IsCursorLockedOnExecution);
             SetCursorVisible(behaviorConfigSO.IsCursorVisibleOnExecution);
-            if(!skipSceneLoading)
+            SetInGameUiEventType();
+            if (!skipSceneLoading)
             {
                 HandleSceneLoading(behaviorConfigSO.SceneLoadTypeOnExecution);       
             }

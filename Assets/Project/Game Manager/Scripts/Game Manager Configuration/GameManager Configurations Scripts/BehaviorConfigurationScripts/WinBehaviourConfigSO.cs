@@ -4,9 +4,10 @@ using UnityEngine;
 
 namespace Game_Manager.Configuration
 {
-    [CreateAssetMenu(fileName = "WinBehaviourConfigSO", menuName = "Game Manager/Behavior Configs/Win Behavior Config", order = 5)]
-    public class WinBehaviourConfigSO : BaseGameBehaviorConfigSO
+    [CreateAssetMenu(fileName = "WinBehaviorConfigSO", menuName = "Game Manager/Behavior Configs/Win Behavior Config", order = 5)]
+    public class WinBehaviorConfigSO : BaseGameBehaviorConfigSO
     {
+        public override string BehaviorName => "Win Behavior";
 
         public override GameBehaviorBase CreateBehavior()
         {

@@ -7,7 +7,6 @@ namespace Game_Manager.Configuration
     public abstract class BaseGameBehaviorConfigSO : ScriptableObject
     {
         [Header("Base Behavior Configuration")]
-        public GameBehaviorType BehaviorType;
         public bool IsTimeZeroOnExecution = true;
         public bool IsCursorLockedOnExecution = true;
         public bool IsCursorVisibleOnExecution = true;
@@ -15,6 +14,7 @@ namespace Game_Manager.Configuration
         public SceneLoadType SceneLoadTypeOnExecution = SceneLoadType.NoSceneLoad;
         public int SceneToLoad = 0;
 
+        public abstract string BehaviorName { get; }
         public abstract GameBehaviorBase CreateBehavior();
         public abstract GameCondition CreateGameCondition();
 

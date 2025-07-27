@@ -13,6 +13,8 @@ namespace Game_Manager.Configuration
         public string PauseAudioKey;
         public string UnPauseAudioKey;
 
+        public override string BehaviorName => "Pause Behavior";
+
         public override GameBehaviorBase CreateBehavior()
         {
             PauseBehavior pauseBehavior = new PauseBehavior(this);

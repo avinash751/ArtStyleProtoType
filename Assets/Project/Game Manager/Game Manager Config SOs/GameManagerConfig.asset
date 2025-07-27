@@ -13,16 +13,15 @@ MonoBehaviour:
   m_Name: GameManagerConfig
   m_EditorClassIdentifier: 
   Mode: 2
-  EventBusConfig: {fileID: 11400000, guid: bb7b41d3aacf50046964b1d4915d0d3b, type: 2}
   PreferredRestartGameBehavior: {fileID: 11400000, guid: 60ecb6fc2715ab448a854112fcce31e8, type: 2}
   BehaviorConfigurations:
-  - BehaviorName: Start Behavior
+  - BehaviorName: Start Behavior Behavior
     ConfigSO: {fileID: 11400000, guid: 60ecb6fc2715ab448a854112fcce31e8, type: 2}
-  - BehaviorName: Play Behavior
+  - BehaviorName: Play Behavior Behavior
     ConfigSO: {fileID: 11400000, guid: 72dd10351ad9b2a41a0482ddc9840881, type: 2}
-  - BehaviorName: Paused Behavior
+  - BehaviorName: Pause Behavior Behavior
     ConfigSO: {fileID: 11400000, guid: 2a6c47141911eab44b0bd85e9ae9583b, type: 2}
-  - BehaviorName: Win Behavior
+  - BehaviorName: Win Behavior Behavior
     ConfigSO: {fileID: 11400000, guid: 8bb5203fd1265c741987ea60de2e1d55, type: 2}
-  - BehaviorName: Lose Behavior
+  - BehaviorName: Lose Behavior Behavior
     ConfigSO: {fileID: 11400000, guid: 1de6589cfe79f7546aa7bac890aeb8f2, type: 2}

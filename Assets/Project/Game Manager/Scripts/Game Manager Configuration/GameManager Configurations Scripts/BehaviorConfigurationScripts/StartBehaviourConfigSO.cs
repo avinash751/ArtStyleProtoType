@@ -7,8 +7,9 @@ namespace Game_Manager.Configuration
 {
 
     [CreateAssetMenu(fileName = "StartBehaviourConfigSO", menuName = "Game Manager/Behavior Configs/Start Behavior Config", order = 2)]
-    public class StartBehaviourConfigSO : BaseGameBehaviorConfigSO
+    public class StartBehaviorConfigSO : BaseGameBehaviorConfigSO
     {
+        public override string BehaviorName => "Start Behavior";
         public override GameBehaviorBase CreateBehavior()
         {
             StartBehavior startBehavior = new StartBehavior(this);

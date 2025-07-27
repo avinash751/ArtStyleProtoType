@@ -34,7 +34,7 @@ namespace Game_Manager.Configuration
                 {
                     BehaviorConfiguration behaviorConfiguration = BehaviorConfigurations[i];
                     if (behaviorConfiguration.ConfigSO == null) continue;
-                    behaviorConfiguration.BehaviorName = behaviorConfiguration.ConfigSO.BehaviorType + " Behavior";
+                    behaviorConfiguration.BehaviorName = behaviorConfiguration.ConfigSO.BehaviorName;
                 }
             }
         }
