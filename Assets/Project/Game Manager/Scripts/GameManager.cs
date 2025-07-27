@@ -56,12 +56,17 @@ namespace Game_Manager
         }
         private void Start()
         {
-            gameConditions.ForEach(condition => condition.Initialize());
-            StartGame();
+            ResetAllBehaviors();
+            InitializeGameConditions();
+            GameBehaviorBase initialBehavior = FindInitialBehavior();
+            TransitionTo(initialBehavior);
         }
 
         private void OnValidate()
         {
+            // Skip validation in editor mode to avoid unnecessary warnings.
+            if (Application.isPlaying) return;
+           
             if (gameManagerConfigSo == null)
             {
                 Debug.LogWarning("No Game Manager Config found on GameManager. Please assign one.");
@@ -69,22 +74,14 @@ namespace Game_Manager
                 gameConditions.Clear();
                 behaviorsByType.Clear();
                 behaviorsByConfig.Clear();
+                return;
             }
-            else
-            {
-                gameBehaviors = gameManagerConfigSo.CreateAllGameBehaviors();
-                PopulateBehaviorDictionaries();
-                gameConditions = gameManagerConfigSo.CreateAllGameConditions();
-                pollableConditions.Clear();
-                foreach (GameCondition condition in gameConditions)
-                {
-                    if (condition is IPollableCondition pollableCondition)
-                    {
-                        pollableConditions.Add(pollableCondition);
-                    }
-                }
-            }
+
+            gameBehaviors = gameManagerConfigSo.CreateAllGameBehaviors();
+            PopulateBehaviorDictionaries();
+            gameConditions = gameManagerConfigSo.CreateAllGameConditions();
         }
+        
 
         private void PopulateBehaviorDictionaries()
         {
@@ -127,15 +124,6 @@ namespace Game_Manager
         }
 
         #region Game State Functions
-
-        public void StartGame()
-        {
-            ResetAllBehaviors();
-            InitializeGameConditions();
-            GameBehaviorBase initialBehavior = FindInitialBehavior();
-            TransitionTo(initialBehavior);
-        }
-
         private GameBehaviorBase FindInitialBehavior()
         {
             // If we're not in a Scene Aware mode, we always default to StartBehavior.
@@ -160,6 +148,7 @@ namespace Game_Manager
             return GetBehavior<StartBehavior>();
         }
 
+        public void StartGame() => TransitionToType<StartBehavior>();
         public void PlayGame() => TransitionToType<PlayBehavior>();
         public void WinGame() => TransitionToType<WinBehavior>();
         public void LoseGame() => TransitionToType<LoseBehavior>();
@@ -278,6 +267,14 @@ namespace Game_Manager
             {
                 condition.CleanUp();
                 condition.Initialize();
+            }
+            pollableConditions.Clear();
+            foreach (GameCondition condition in gameConditions)
+            {
+                if (condition is IPollableCondition pollableCondition)
+                {
+                    pollableConditions.Add(pollableCondition);
+                }
             }
         }
         #endregion

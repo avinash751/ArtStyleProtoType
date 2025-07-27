@@ -129,11 +129,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 2558048402858831317, guid: f5e08aab649605046956f9f0ac275c78, type: 3}
       propertyPath: MenuRelations.Array.data[1].UIButtonDataList.Array.data[1].ButtonName
-      value: RestartGame Button
+      value: GoToMainMenu Button
       objectReference: {fileID: 0}
     - target: {fileID: 2558048402858831317, guid: f5e08aab649605046956f9f0ac275c78, type: 3}
       propertyPath: MenuRelations.Array.data[1].UIButtonDataList.Array.data[1].ButtonType
-      value: 3
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 6569186193949784796, guid: f5e08aab649605046956f9f0ac275c78, type: 3}
       propertyPath: gameManagerConfigSo

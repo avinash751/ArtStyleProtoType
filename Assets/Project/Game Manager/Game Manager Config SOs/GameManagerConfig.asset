@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 418a4b95e2972ea48814c4f2b4f20d3a, type: 3}
   m_Name: GameManagerConfig
   m_EditorClassIdentifier: 
-  Mode: 3
+  Mode: 2
   EventBusConfig: {fileID: 11400000, guid: bb7b41d3aacf50046964b1d4915d0d3b, type: 2}
   PreferredRestartGameBehavior: {fileID: 11400000, guid: 60ecb6fc2715ab448a854112fcce31e8, type: 2}
   BehaviorConfigurations:
